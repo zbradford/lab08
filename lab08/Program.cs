@@ -1,9 +1,15 @@
-﻿
+﻿/*
+* Name: Z Bradford
+* Course: CSCI 1250, Section 201
+* Assignment: Lab 08, Game Night
+* Date: November 18, 2026
+* Description: Keeps a game night leaderboard in three text files. Shows the
+* season so far, records tonight's points, saves the new totals,
+* and adds tonight's result to a history that grows every week.
+*/
+
 
 // Constants
-using System.Data;
-using System.Drawing;
-
 const string PLAYERS_FILE = "players.txt";
 const string POINTS_FILE = "points.txt";
 const string HISTORY_FILE = "history.txt";
@@ -18,12 +24,30 @@ string[] players = File.ReadAllLines(PLAYERS_FILE);
 string[] points = File.ReadAllLines(POINTS_FILE);
 string[] history = File.ReadAllLines(HISTORY_FILE);
 
+//Read the history
+Console.WriteLine("=== GAME NIGHT LEADERBOARD ===");
+if (history.Length == 0)
+{
+    Console.WriteLine("No nights played yet.");
+}
+else
+{
+    Console.WriteLine("Nights played: " + history.Length);
+    foreach(string night in history)
+    {
+        Console.WriteLine(" " + night);
+    }
+}
+int thisNight = history.Length + 1;
+Console.WriteLine("Tonight is night " + thisNight + ".");
+
 // Part 1: The Standings
 //Calculations
 int leader = LeaderIndex(points);
 int total = TotalPoints(points);
 
 //Output
+Console.WriteLine(" ");
 Console.WriteLine("PLAYER".PadRight(11) + "POINTS");
 
 for (int i = 0; i < players.Length; i++)
@@ -37,12 +61,13 @@ Console.WriteLine("Season total: " + total);
 //Calculations
 int winner = 0;
 int score = 0;
+Console.WriteLine(" ");
 for (int i = 0; i < players.Length; i++)
 {
     int name = Convert.ToInt32(i);
     Console.Write("Points tonight for " + players[name] + ": ");
     int scores = Convert.ToInt32(Console.ReadLine());
-    while(scores > 20 || scores < 0)
+    while(scores > MAX_POINTS || scores < 0)
     {
         Console.WriteLine("Points must be frome 0 to 20.");
         Console.Write("Points tonight for " + players[name] + ": ");
@@ -60,7 +85,11 @@ File.WriteAllLines(POINTS_FILE, points);
 
 //Output
 Console.WriteLine("Tonight's winner: " + players[winner] + " with " + score);
+Console.WriteLine(" ");
 
+//Part 3: The History 
+string[] entry = { HistoryEntry(thisNight, players[winner], score)};
+File.AppendAllLines(HISTORY_FILE, entry);
 //METHODS
 
 //FindLeader
@@ -86,4 +115,8 @@ static int TotalPoints(string[] points)
         total = total + Convert.ToInt32(add);
     }
     return total;
+}
+static string HistoryEntry(int night, string winner, int points)
+{
+    return "Night " + night + ": " + winner + " won with " + points + " points";
 }
